@@ -1,94 +1,39 @@
-# CopyQ-MD-Sync
+# 简介
 
-一个用于同步和管理命令的工具，支持将 Markdown 文件中的命令与 CopyQ 剪贴板管理器进行双向同步。
+这是一个将 Markdown 文件中的命令同步到 CopyQ 剪贴板管理器的工具。
 
-## 功能特点
+## 使用步骤
 
-- 📝 支持通过 Markdown 文件管理命令和代码片段
-- 🔄 自动监控文件变化并同步到 CopyQ
-- 🏷️ 支持通过标签对命令进行分类
-- 📋 支持双向同步（CopyQ ↔ Markdown）
-- 🔍 支持命令搜索和过滤
-- 📚 支持多级分类和引用其他文件
+1.安装 CopyQ 剪贴板管理器 可以在 https://github.com/hluk/CopyQ/releases 页内搜索 setup.exe 下载
+2.将 clipboard_manager.py 的 COPYQ_PATH 中改为实际的 CopyQ 安装位置，根据需要修改 "命令管理.md" 文件
+3.运行 sync_commands.py 一次性同步 "命令管理.md" 文件中新增的命令
+或 运行 watch_and_sync.py 自动监控 "命令管理.md" 文件变化并同步到 CopyQ
 
-## 系统要求
+说明：
+1.目前命令存放在 CopyQ 的标签 “命令”中，可以通过修改 sync_commands.py 对 export_to_clipboard 函数的两处调用来修改。
+2.导入一次后会产生文件 commands_store.json ，用于记录已经导入的命令，下次导入时将会跳过这些命令。
 
-- Python 3.6+
-- CopyQ 剪贴板管理器
-- Windows 操作系统
+## "命令管理.md" 文件格式说明
 
-## 安装
-
-1. 克隆仓库：
-```bash
-git clone https://github.com/yourusername/copyq-md-sync.git
-cd copyq-md-sync
+- Markdown 格式的各级标题及单行文本
+文本会被导入到 CopyQ ，并使用标题作为标签，如
+```md
+# 测试
+## 测试前端
+npm run dev
+## 测试后端
+ps aux | grep [p]ython
+```
+将被导入为两条：
+```
+npm run dev #测试 ##测试前端
+ps aux | grep [p]ython #测试 ##测试后端
 ```
 
-2. 安装依赖：
-```bash
-pip install -r requirements.txt
-```
+- 多行文本需要使用代码块（```）来导入
 
-## 使用方法
+- 对于单行文本，可以使用 文本 # 标签 的方式添加标签
 
-### 1. 启动监控服务
+- 对于多行文本，可以在代码块的下一行用 > 标签 的方式添加标签
 
-运行以下命令启动文件监控服务：
-```bash
-python watch_and_sync.py
-```
-
-这将开始监控 `命令管理.md` 文件的变化，并在文件发生更改时自动同步到 CopyQ。
-
-### 2. 管理命令
-
-在 `命令管理.md` 文件中，您可以：
-
-- 使用 Markdown 格式编写命令
-- 使用 `>` 添加标签
-- 使用 `#` 添加命令标签
-- 使用 `[[]]` 引用其他文件
-- 使用代码块（```）来格式化命令
-
-示例：
-```markdown
-### Git 命令
-> git,开发
-
-```bash
-# 初始化仓库
-git init
-# 添加文件到暂存区
-git add .
-```
-```
-
-### 3. 导入命令
-
-如果需要从 CopyQ 导入命令到 Markdown 文件：
-```bash
-python import_commands.py
-```
-
-## 文件说明
-
-- `watch_and_sync.py`: 文件监控和同步服务
-- `sync_commands.py`: 同步命令的核心逻辑
-- `import_commands.py`: 从 CopyQ 导入命令
-- `clipboard_manager.py`: CopyQ 剪贴板管理接口
-- `命令管理.md`: 命令存储文件
-
-## 注意事项
-
-1. 确保 CopyQ 已经安装并正在运行
-2. 保持 `命令管理.md` 文件的格式规范
-3. 建议定期备份命令文件
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-## 许可证
-
-MIT License 
+- 可以使用 `[[]]` 引用其他文件
