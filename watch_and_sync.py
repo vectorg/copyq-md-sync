@@ -54,7 +54,8 @@ class CommandFileHandler(FileSystemEventHandler):
     def on_modified(self, event):
         file_path = event.src_path
         if file_path in self.watched_files:
-            print(f"检测到文件变化: {file_path}")
+            time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            print(f"[{time_str}] 检测到文件变化: {file_path}")
             # 如果主文件发生变化，可能有新的引用
             if file_path == self.main_file_path:
                 self.update_watched_files()
@@ -82,6 +83,11 @@ def start_watching(command_file_path, sync_script_path):
         if dir_path not in watched_dirs:
             observer.schedule(event_handler, dir_path, recursive=False)
             watched_dirs.add(dir_path)
+    
+    # 启动时立即执行一次同步命令
+    time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    print(f"[{time_str}] 启动时执行初始同步...")
+    subprocess.run(['python', sync_script_path])
     
     # 开始监控
     observer.start()
