@@ -23,8 +23,8 @@ def sync_commands(md_path, store_path):
     with open(md_path, 'r', encoding='utf-8') as f:
         md_content = f.read()
     
-    # 解析markdown内容
-    parsed_items = parse_md_content(md_content)
+    # 解析markdown内容，传递文件路径以正确处理相对引用
+    parsed_items = parse_md_content(md_content, base_path=md_path)
     
     # 加载现有命令存储
     stored_commands = load_command_store(store_path)

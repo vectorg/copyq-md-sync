@@ -11,7 +11,7 @@ def get_heading_tag(line):
     return f"{'#' * level}{content}" if content else None
 
 class MarkdownParser:
-    def __init__(self):
+    def __init__(self, base_path=None):
         self.items = []
         self.current_content = None
         self.current_tags = ["命令"]  # 默认标签
@@ -20,6 +20,7 @@ class MarkdownParser:
         self.code_block_content = []
         self.pending_code_block = None
         self.processed_files = set()  # 用于跟踪已处理的文件，避免循环引用
+        self.base_path = base_path  # 当前处理文件的路径，用于解析相对引用
 
     def _handle_empty_line(self):
         """处理空行"""
@@ -55,21 +56,31 @@ class MarkdownParser:
         matches = re.findall(r'\[\[(.*?)\]\]', line)
         if matches:
             for file_path in matches:
-                if file_path in self.processed_files:
-                    print(f"警告: 检测到循环引用 {file_path}")
+                # 解析相对路径
+                if self.base_path and not os.path.isabs(file_path):
+                    # 使用当前文件所在目录作为基准路径
+                    base_dir = os.path.dirname(self.base_path)
+                    abs_file_path = os.path.normpath(os.path.join(base_dir, file_path))
+                else:
+                    abs_file_path = file_path
+                    
+                if abs_file_path in self.processed_files:
+                    print(f"警告: 检测到循环引用 {abs_file_path}")
                     continue
                     
-                self.processed_files.add(file_path)
+                self.processed_files.add(abs_file_path)
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with open(abs_file_path, 'r', encoding='utf-8') as f:
                         referenced_content = f.read()
-                        # 递归解析引用的文件内容
-                        referenced_items = self.parse(referenced_content)
+                        # 使用新的解析器实例解析引用的文件内容，保持标题级别隔离
+                        referenced_parser = MarkdownParser(base_path=abs_file_path)
+                        referenced_parser.processed_files = self.processed_files.copy()  # 共享已处理文件列表以避免循环引用
+                        referenced_items = referenced_parser.parse(referenced_content)
                         self.items.extend(referenced_items)
                 except FileNotFoundError:
-                    print(f"错误: 找不到引用的文件 {file_path}")
+                    print(f"错误: 找不到引用的文件 {abs_file_path}")
                 except Exception as e:
-                    print(f"处理文件 {file_path} 时出错: {str(e)}")
+                    print(f"处理文件 {abs_file_path} 时出错: {str(e)}")
             return True
         return False
 
@@ -170,10 +181,10 @@ class MarkdownParser:
         
         return self.items
 
-def parse_md_content(md_content):
+def parse_md_content(md_content, base_path=None):
     """解析markdown内容，提取命令及其标签"""
     md_content = md_content.replace('\\', '\\\\')
-    parser = MarkdownParser()
+    parser = MarkdownParser(base_path=base_path)
     return parser.parse(md_content)
 
 def create_command_store(items, store_path):
@@ -221,7 +232,7 @@ def main():
     with open(md_path, 'r', encoding='utf-8') as f:
         md_content = f.read()
     
-    items = parse_md_content(md_content)
+    items = parse_md_content(md_content, base_path=md_path)
     new_items_count = create_command_store(items, store_path)
     
     if new_items_count == 0:
