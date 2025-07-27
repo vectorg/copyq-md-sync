@@ -6,6 +6,7 @@ import os
 import re
 from pathlib import Path
 from config import DATA_DIR, MARKDOWN_FILE, COMMAND_STORE_FILE
+from sync_commands import main as sync_main
 
 def extract_referenced_files(md_file_path):
     """提取Markdown文件中引用的其他文件路径"""
@@ -35,9 +36,8 @@ def extract_referenced_files(md_file_path):
     return referenced_files
 
 class CommandFileHandler(FileSystemEventHandler):
-    def __init__(self, main_file_path, sync_script_path):
+    def __init__(self, main_file_path):
         self.main_file_path = main_file_path
-        self.sync_script_path = sync_script_path
         self.watched_files = set([main_file_path])
         self.update_watched_files()
         
@@ -60,15 +60,15 @@ class CommandFileHandler(FileSystemEventHandler):
             # 如果主文件发生变化，可能有新的引用
             if file_path == self.main_file_path:
                 self.update_watched_files()
-            # 运行同步脚本
-            subprocess.run(['python', self.sync_script_path])
+            # 运行同步函数
+            sync_main()
 
-def start_watching(command_file_path, sync_script_path):
+def start_watching(command_file_path):
     # 获取命令文件的绝对路径
     abs_command_file = os.path.abspath(command_file_path)
     
     # 创建处理器
-    event_handler = CommandFileHandler(abs_command_file, sync_script_path)
+    event_handler = CommandFileHandler(abs_command_file)
     
     # 创建观察者
     observer = Observer()
@@ -85,10 +85,10 @@ def start_watching(command_file_path, sync_script_path):
             observer.schedule(event_handler, dir_path, recursive=False)
             watched_dirs.add(dir_path)
     
-    # 启动时立即执行一次同步命令
+    # 启动时立即执行一次同步
     time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print(f"[{time_str}] 启动时执行初始同步...")
-    subprocess.run(['python', sync_script_path])
+    sync_main()
     
     # 开始监控
     observer.start()
@@ -109,11 +109,9 @@ if __name__ == "__main__":
     current_dir = Path(__file__).parent
     # 指定命令管理文件路径
     command_file = current_dir / DATA_DIR / MARKDOWN_FILE
-    # 指定同步脚本路径
-    sync_script = current_dir / 'sync_commands.py'
 
     # 设置脚本目录为当前目录
     os.chdir(current_dir)
 
     # 开始监控
-    start_watching(command_file, sync_script)
+    start_watching(command_file)
