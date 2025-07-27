@@ -214,8 +214,8 @@ def create_command_store(items, store_path):
 
 def main():
     current_dir = Path(__file__).parent
-    md_path = current_dir / '命令管理.md'
-    store_path = current_dir / 'commands_store.json'
+    md_path = current_dir / 'data' / '命令管理.md'
+    store_path = current_dir / 'data' / 'commands_store.json'
     
     # 读取并解析markdown文件
     with open(md_path, 'r', encoding='utf-8') as f:

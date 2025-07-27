@@ -89,8 +89,8 @@ def sync_commands(md_path, store_path):
 
 def main():
     current_dir = Path(__file__).parent
-    md_path = current_dir / '命令管理.md'
-    store_path = current_dir / 'commands_store.json'
+    md_path = current_dir / 'data' / '命令管理.md'
+    store_path = current_dir / 'data' / 'commands_store.json'
     
     sync_commands(md_path, store_path)
 

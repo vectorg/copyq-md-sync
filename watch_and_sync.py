@@ -101,7 +101,7 @@ if __name__ == "__main__":
     # 获取当前文件的目录
     current_dir = Path(__file__).parent
     # 指定命令管理文件路径
-    command_file = current_dir / '命令管理.md'
+    command_file = current_dir / 'data' / '命令管理.md'
     # 指定同步脚本路径
     sync_script = current_dir / 'sync_commands.py'
 
