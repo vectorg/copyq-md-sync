@@ -1,9 +1,7 @@
 import subprocess
+from config import COPYQ_PATH, DEFAULT_TAB, DEFAULT_TAGS, CHECK_DUPLICATES
 
-# 定义常量
-COPYQ_PATH = "D:\\Software\\copyq-9.1.0\\copyq.exe"
-
-def check_content_exists(content, tab="test"):
+def check_content_exists(content, tab=DEFAULT_TAB):
     """
     检查内容是否已存在于指定标签页
     :param content: 要检查的内容
@@ -32,13 +30,13 @@ def check_content_exists(content, tab="test"):
         print(f"检查内容是否存在时发生错误: {e}")
         return False
 
-def export_to_clipboard(content, tab="test", tags="测试,test", need_check=False):
+def export_to_clipboard(content, tab=DEFAULT_TAB, tags=DEFAULT_TAGS, need_check=CHECK_DUPLICATES):
     """
     将内容导出到剪贴板，如果内容不存在才添加
     :param content: 要导出的完整内容
-    :param tab: CopyQ的标签页，默认为"test"
-    :param tags: 要添加的标签，默认为"测试,test"
-    :param need_check: 是否需要检查内容是否存在，默认为False
+    :param tab: CopyQ的标签页，默认为配置的DEFAULT_TAB
+    :param tags: 要添加的标签，默认为配置的DEFAULT_TAGS
+    :param need_check: 是否需要检查内容是否存在，默认为配置的CHECK_DUPLICATES
     :return: 是否成功添加新内容
     """
     if need_check and check_content_exists(content, tab):

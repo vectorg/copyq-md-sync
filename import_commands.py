@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 import json
 import re
+from config import DATA_DIR, MARKDOWN_FILE, COMMAND_STORE_FILE
 
 def get_heading_tag(line):
     """获取标题级别和内容"""
@@ -225,8 +226,8 @@ def create_command_store(items, store_path):
 
 def main():
     current_dir = Path(__file__).parent
-    md_path = current_dir / 'data' / '命令管理.md'
-    store_path = current_dir / 'data' / 'commands_store.json'
+    md_path = current_dir / DATA_DIR / MARKDOWN_FILE
+    store_path = current_dir / DATA_DIR / COMMAND_STORE_FILE
     
     # 读取并解析markdown文件
     with open(md_path, 'r', encoding='utf-8') as f:

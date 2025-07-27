@@ -5,6 +5,7 @@ import time
 import os
 import re
 from pathlib import Path
+from config import DATA_DIR, MARKDOWN_FILE, COMMAND_STORE_FILE
 
 def extract_referenced_files(md_file_path):
     """提取Markdown文件中引用的其他文件路径"""
@@ -107,7 +108,7 @@ if __name__ == "__main__":
     # 获取当前文件的目录
     current_dir = Path(__file__).parent
     # 指定命令管理文件路径
-    command_file = current_dir / 'data' / '命令管理.md'
+    command_file = current_dir / DATA_DIR / MARKDOWN_FILE
     # 指定同步脚本路径
     sync_script = current_dir / 'sync_commands.py'
 

@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 from clipboard_manager import export_to_clipboard
 from import_commands import parse_md_content
+from config import DATA_DIR, MARKDOWN_FILE, COMMAND_STORE_FILE, DEFAULT_TAB
 
 def load_command_store(store_path):
     """加载已存储的命令"""
@@ -48,7 +49,7 @@ def sync_commands(md_path, store_path):
             }
             
             # 导出到剪贴板
-            if export_to_clipboard(content, tab='命令', tags=tags):
+            if export_to_clipboard(content, tab=DEFAULT_TAB, tags=tags):
                 command_data["last_exported"] = datetime.now().isoformat()
                 print(f"已导出新命令到剪贴板: {content}")
                 print(f"标签: {tags}")
@@ -71,7 +72,7 @@ def sync_commands(md_path, store_path):
                 # existing_cmd['tags'] = tags_list #完全使用新的标签替换旧标签，导致命令重复时多次更新
                 
                 # 重新导出到剪贴板
-                if export_to_clipboard(content, tab='命令', tags=','.join(existing_cmd['tags'])):
+                if export_to_clipboard(content, tab=DEFAULT_TAB, tags=','.join(existing_cmd['tags'])):
                     existing_cmd["last_exported"] = datetime.now().isoformat()
                     print(f"更新命令标签并重新导出: {content}")
                     print(f"新增标签: {','.join(missing_tags)}")
@@ -89,8 +90,8 @@ def sync_commands(md_path, store_path):
 
 def main():
     current_dir = Path(__file__).parent
-    md_path = current_dir / 'data' / '命令管理.md'
-    store_path = current_dir / 'data' / 'commands_store.json'
+    md_path = current_dir / DATA_DIR / MARKDOWN_FILE
+    store_path = current_dir / DATA_DIR / COMMAND_STORE_FILE
     
     sync_commands(md_path, store_path)
 
